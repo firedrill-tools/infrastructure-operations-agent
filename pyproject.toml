@@ -1,0 +1,23 @@
+[project]
+name = "infrastructure-operations-agent"
+version = "0.1.0"
+description = "Synthetic deployment CLI operated through OpenAI Agents SDK tools"
+requires-python = ">=3.12"
+dependencies = ["openai-agents==0.23.1"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+infra-demo = "infra_ops.cli:main"
+infra-agent = "infra_ops.agent:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/infra_ops"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
