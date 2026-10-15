@@ -29,3 +29,5 @@ uv run infra-agent --request "Deploy API version 2.1.0, check health, and if it 
 Only the synthetic versions in `fixtures/starter.json` are accepted. The tool does not load cloud credentials or call a cloud API. Reset by removing the local `workspace` directory and running `uv run infra-demo seed` again. This SQLite fixture is a local example, not a production deployment system.
 
 `uv run --extra test pytest` covers a failed rollout, stale cache, rollback, successful worker rollout, CLI subprocess calls and actual Agents SDK function tools. These are offline tool and state proofs, not a live OpenAI model run. Live provider and new Firedrill integration proofs remain pending. This private repository has no license pending portfolio publication decisions.
+
+Explore related applications in the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product and setup references: [Firedrill](https://firedrill.run/) and the [official developer documentation](https://docs.firedrill.run/). Use documentation matching the qualified release; this repository records its current integration limits above.
