@@ -1,0 +1,8 @@
+{
+  "services": [
+    { "name": "api", "version": "2.0.0", "healthy": true, "revision": 1 },
+    { "name": "worker", "version": "1.4.0", "healthy": true, "revision": 1 }
+  ],
+  "allowed_versions": { "api": ["2.0.0", "2.1.0"], "worker": ["1.4.0", "1.5.0"] },
+  "failing_versions": { "api": ["2.1.0"], "worker": [] }
+}

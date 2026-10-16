@@ -11,6 +11,8 @@ from typing import Any
 
 MAX_INTEGER = 2**53 - 1
 MAX_SOURCE_BYTES = 8 * 1024 * 1024
+MAX_SERVICES = 64
+MAX_VERSIONS = 64
 
 
 def parse_json(text: str) -> Any:
@@ -55,7 +57,9 @@ def read_regular(path: str | Path) -> bytes:
 
 
 def service_name(value: Any) -> str:
-    if type(value) is not str or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", value):
+    if type(value) is not str or not re.fullmatch(
+        r"[A-Za-z][A-Za-z0-9_-]{0,63}", value
+    ):
         raise ValueError("canonical service identifier required")
     return value
 
@@ -63,7 +67,9 @@ def service_name(value: Any) -> str:
 def stable_version(value: Any) -> str:
     if (
         type(value) is not str
-        or not re.fullmatch(r"(?:0|[1-9][0-9]{0,15})(?:\.(?:0|[1-9][0-9]{0,15})){2}", value)
+        or not re.fullmatch(
+            r"(?:0|[1-9][0-9]{0,15})(?:\.(?:0|[1-9][0-9]{0,15})){2}", value
+        )
         or any(int(part) > MAX_INTEGER for part in value.split("."))
     ):
         raise ValueError("canonical safe stable version required")
@@ -83,8 +89,14 @@ def next_revision(value: Any) -> int:
     return current + 1
 
 
-def keys(value: Any, required: set[str], optional: set[str] | frozenset[str] = frozenset()) -> dict:
-    if type(value) is not dict or not required <= value.keys() or value.keys() - required - optional:
+def keys(
+    value: Any, required: set[str], optional: set[str] | frozenset[str] = frozenset()
+) -> dict:
+    if (
+        type(value) is not dict
+        or not required <= value.keys()
+        or value.keys() - required - optional
+    ):
         raise ValueError("original source fields differ from declared schema")
     return value
 
@@ -93,7 +105,7 @@ def validate_fixture(value: Any) -> dict:
     data = keys(value, {"services", "allowed_versions"}, {"failing_versions"})
     services, versions = data["services"], data["allowed_versions"]
     failures = data.get("failing_versions", {})
-    if type(services) is not list or not 1 <= len(services) <= 256:
+    if type(services) is not list or not 1 <= len(services) <= MAX_SERVICES:
         raise ValueError("bounded nonempty synthetic services required")
     known = set()
     for item in services:
@@ -109,7 +121,7 @@ def validate_fixture(value: Any) -> dict:
     if type(failures) is not dict or not set(failures) <= known:
         raise ValueError("failure rules must refer to known services")
     for name, rows in versions.items():
-        if type(rows) is not list or not 1 <= len(rows) <= 256:
+        if type(rows) is not list or not 1 <= len(rows) <= MAX_VERSIONS:
             raise ValueError("bounded version catalog required")
         checked = [stable_version(v) for v in rows]
         if len(set(checked)) != len(checked):
@@ -123,6 +135,10 @@ def validate_fixture(value: Any) -> dict:
     for item in services:
         if item["version"] not in versions[item["name"]]:
             raise ValueError("initial service version missing from allowed catalog")
+        if item["healthy"] and item["version"] in failures.get(item["name"], []):
+            raise ValueError(
+                "healthy initial service contradicts deterministic failure rule"
+            )
     return data
 
 

@@ -10,10 +10,29 @@ from infra_ops.store import DeploymentStore
 FIXTURE = Path(__file__).parents[1] / "fixtures" / "starter.json"
 
 
-@pytest.mark.parametrize("fault", [
-    "health-string", "boolean-revision", "orphan-service", "orphan-failure",
-    "unknown-initial-version", "duplicate-version", "unknown-field", "negative-revision",
-])
+def test_healthy_source_cannot_contradict_its_deterministic_failure_rule(tmp_path):
+    data = json.loads(FIXTURE.read_text())
+    data["failing_versions"]["api"].append("2.0.0")
+    source, database = tmp_path / "source.json", tmp_path / "state.db"
+    source.write_text(json.dumps(data))
+    with pytest.raises(ValueError, match="contradicts"):
+        DeploymentStore.seed(database, source)
+    assert not database.exists()
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "health-string",
+        "boolean-revision",
+        "orphan-service",
+        "orphan-failure",
+        "unknown-initial-version",
+        "duplicate-version",
+        "unknown-field",
+        "negative-revision",
+    ],
+)
 def test_complete_invalid_fixture_rejects_before_any_database(fault, tmp_path):
     data = deepcopy(json.loads(FIXTURE.read_text()))
     if fault == "health-string":
@@ -39,12 +58,17 @@ def test_complete_invalid_fixture_rejects_before_any_database(fault, tmp_path):
     assert not db.exists()
 
 
-@pytest.mark.parametrize("raw", [
-    b'{"services":[],"services":[],"allowed_versions":{}}',
-    b'{"services":[],"allowed_versions":{},"x":NaN}',
-    b'{"services":"\xff","allowed_versions":{}}',
-])
-def test_original_duplicate_nonfinite_or_nonutf8_bytes_reject_before_seed(raw, tmp_path):
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b'{"services":[],"services":[],"allowed_versions":{}}',
+        b'{"services":[],"allowed_versions":{},"x":NaN}',
+        b'{"services":"\xff","allowed_versions":{}}',
+    ],
+)
+def test_original_duplicate_nonfinite_or_nonutf8_bytes_reject_before_seed(
+    raw, tmp_path
+):
     fixture, db = tmp_path / "source.json", tmp_path / "state.db"
     fixture.write_bytes(raw)
     with pytest.raises((ValueError, UnicodeError)):
@@ -93,7 +117,9 @@ def test_maximum_safe_revision_cannot_overflow_into_a_committed_rollout(tmp_path
     assert store.history("api") == []
 
 
-def test_exact_direct_source_arguments_do_not_coerce_boolean_revisions_or_cached_flags(tmp_path):
+def test_exact_direct_source_arguments_do_not_coerce_boolean_revisions_or_cached_flags(
+    tmp_path,
+):
     store = DeploymentStore.seed(tmp_path / "state.db", FIXTURE)
     with pytest.raises(ValueError, match="exact positive"):
         store.deploy("api", "2.1.0", True)

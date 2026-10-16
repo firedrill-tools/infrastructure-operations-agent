@@ -39,3 +39,7 @@ All4original source/real CLI/actual SDK-tool checks pass. Private probes reprodu
 ### First source checkpoint
 
 20checks now pass: complete original strict fixture/UTF8/duplicate/reference validation, private exclusive seed creation (including dangling symlink rejection), exact direct argument types/canonical versions and revision exhaustion without committed effects. Original four useful CLI/SDK-tool flows remain. Persisted SQLite/schema/history/authority, genuine current scope/exact intent and original native/owned subprocess lifecycle remain active in PLAN.md; this checkpoint does not complete the project.
+
+### Managed source / private CLI checkpoint
+
+55checks now cover original UUID/root/file/schema/fixture/history/cache authority, exact caller rollout/recovery intent, private genuine current status capabilities, atomic SQLite service/event/decision writes and no-op, six real concurrent writers, source/record tampering and actual paused CLI fencing after durable scope closure. The default seed fixture is installed package data; original fixture bytes remain preserved. Private model-free `infra-demo --db PATH inspect --service api --version 2.1.0 --rollback-on-failure` prints caller intent and grants no runtime read. Manual CLI/source methods are a declared synthetic-human seam; owned private commands require strict stdin credentials and cannot fall back. The old normal agent launch below/above still needs the owned async/native integration in PLAN.md and is not qualified by these55checks.
