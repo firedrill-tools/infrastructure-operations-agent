@@ -411,10 +411,13 @@ wheels = [
 
 [[package]]
 name = "infrastructure-operations-agent"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
+    { name = "httpx2" },
+    { name = "openai" },
     { name = "openai-agents" },
+    { name = "pydantic" },
 ]
 
 [package.optional-dependencies]
@@ -424,7 +427,10 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "httpx2", specifier = "==2.13.1" },
+    { name = "openai", specifier = "==3.31.0" },
     { name = "openai-agents", specifier = "==0.23.1" },
+    { name = "pydantic", specifier = "==2.14.1" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8,<10" },
 ]
 provides-extras = ["test"]

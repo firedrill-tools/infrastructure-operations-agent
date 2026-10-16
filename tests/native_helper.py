@@ -80,9 +80,16 @@ def reply(n, action, model=MODEL):
 
 @contextmanager
 def environment(
-    tmp_path, actions=ACTIONS, mutate=lambda body, n, request, handler: body
+    tmp_path,
+    actions=ACTIONS,
+    mutate=lambda body, n, request, handler: body,
+    database=None,
 ):
-    store = DeploymentStore.seed(tmp_path / "state.db", FIXTURE)
+    store = (
+        DeploymentStore(database)
+        if database is not None
+        else DeploymentStore.seed(tmp_path / "state.db", FIXTURE)
+    )
     requests = []
     errors = []
 

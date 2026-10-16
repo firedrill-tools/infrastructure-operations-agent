@@ -177,6 +177,7 @@ def source_document(conn, identity, instance_id=None):
             "fixture_sha256",
             "provenance",
             "population",
+            "creation",
         },
     )
     if (
@@ -186,6 +187,10 @@ def source_document(conn, identity, instance_id=None):
     ):
         raise ValueError("qualified original synthetic source required")
     identifier(doc["instance_id"])
+    if doc["creation"] not in ("fixture", "population") or (
+        doc["creation"] == "population"
+    ) != (doc["population"] is not None):
+        raise ValueError("original population creation/reference authority differs")
     if instance_id is not None and doc["instance_id"] != instance_id:
         raise ValueError("managed deployment instance changed")
     if doc["identity"] != identity:
@@ -254,12 +259,13 @@ def version_rows(fixture):
     )
 
 
-def context(source_sha256, services, versions, history):
+def context(source_sha256, services, versions, history, descriptions=None):
     return {
         "source_sha256": source_sha256,
         "services": sorted((dict(r) for r in services), key=lambda r: r["name"]),
         "versions": versions,
         "history": list(history),
+        "descriptions": descriptions or {},
     }
 
 
@@ -344,8 +350,13 @@ def business_lineage(doc, fixture, original, tables):
         raise ValueError("original service version/health catalog changed")
     current = {r["name"]: r for r in initial_services(fixture)}
     history = tables["history"]
-    source_identity_sha = digest({k: v for k, v in doc.items() if k != "population"})
-    contexts = [context(source_identity_sha, list(current.values()), versions, [])]
+    source_identity_sha = digest(
+        {k: v for k, v in doc.items() if k not in {"population", "creation"}}
+    )
+    descriptions = fixture.get("descriptions", {})
+    contexts = [
+        context(source_identity_sha, list(current.values()), versions, [], descriptions)
+    ]
     valid_states = [{name: [deepcopy(row)] for name, row in current.items()}]
     seen_decisions, last_events = set(), {}
     for n, event in enumerate(history):
@@ -394,7 +405,11 @@ def business_lineage(doc, fixture, original, tables):
         last_events[event["service"]] = event["event"]
         contexts.append(
             context(
-                source_identity_sha, list(current.values()), versions, history[: n + 1]
+                source_identity_sha,
+                list(current.values()),
+                versions,
+                history[: n + 1],
+                descriptions,
             )
         )
         valid = dict(valid_states[-1])
@@ -440,6 +455,10 @@ def snapshot(conn, identity, instance_id=None):
         len(tables["seed_state"]) != 1 or tables["seed_state"][0]["id"] != 1
     ):
         raise ValueError("private population original seed required")
+    if doc["population"] is not None:
+        from .populations import validate_seed
+
+        validate_seed(doc, tables, records, contexts, schema)
     observed = {"schema": schema, "source_document": original, "tables": tables}
     return {
         "source": doc,

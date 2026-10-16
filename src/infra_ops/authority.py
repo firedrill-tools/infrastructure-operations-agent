@@ -89,6 +89,11 @@ def status_value(context, state, source):
         "allowed_versions": [
             r["version"] for r in context["versions"] if r["service"] == state["name"]
         ],
+        **(
+            {"description": context["descriptions"][state["name"]]}
+            if state["name"] in context.get("descriptions", {})
+            else {}
+        ),
     }
 
 

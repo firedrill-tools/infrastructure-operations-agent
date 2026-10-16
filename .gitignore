@@ -6,3 +6,5 @@ workspace/
 artifacts/
 .env
 .DS_Store
+dist/
+*.egg-info/

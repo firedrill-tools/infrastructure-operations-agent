@@ -98,6 +98,7 @@ class DeploymentStore:
                 "prior_cloud_delivery": None,
             },
             "population": None,
+            "creation": "fixture",
         }
         conn = sqlite3.connect(db.as_uri() + "?mode=rw", uri=True, isolation_level=None)
         conn.row_factory = sqlite3.Row

@@ -1,9 +1,10 @@
 [project]
 name = "infrastructure-operations-agent"
-version = "0.1.0"
+version = "0.2.0"
+readme = "README.md"
 description = "Synthetic deployment CLI operated through OpenAI Agents SDK tools"
 requires-python = ">=3.12"
-dependencies = ["openai-agents==0.23.1"]
+dependencies = ["openai-agents==0.23.1", "openai==3.31.0", "httpx2==2.13.1", "pydantic==2.14.1"]
 
 [project.optional-dependencies]
 test = ["pytest>=8,<10"]
@@ -11,6 +12,7 @@ test = ["pytest>=8,<10"]
 [project.scripts]
 infra-demo = "infra_ops.cli:main"
 infra-agent = "infra_ops.agent:main"
+infra-cases = "infra_ops.cases:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -21,3 +23,6 @@ packages = ["src/infra_ops"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "fixtures", "scenarios", "tests", "scripts", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]

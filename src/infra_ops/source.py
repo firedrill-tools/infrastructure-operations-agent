@@ -102,7 +102,9 @@ def keys(
 
 
 def validate_fixture(value: Any) -> dict:
-    data = keys(value, {"services", "allowed_versions"}, {"failing_versions"})
+    data = keys(
+        value, {"services", "allowed_versions"}, {"failing_versions", "descriptions"}
+    )
     services, versions = data["services"], data["allowed_versions"]
     failures = data.get("failing_versions", {})
     if type(services) is not list or not 1 <= len(services) <= MAX_SERVICES:
@@ -120,6 +122,15 @@ def validate_fixture(value: Any) -> dict:
         raise ValueError("allowed version catalog must match every exact service")
     if type(failures) is not dict or not set(failures) <= known:
         raise ValueError("failure rules must refer to known services")
+    descriptions = data.get("descriptions", {})
+    if type(descriptions) is not dict or not set(descriptions) <= known:
+        raise ValueError("descriptions must refer to known services")
+    for text in descriptions.values():
+        if (
+            type(text) is not str
+            or not 1 <= len(text.encode("utf-8", errors="strict")) <= 8192
+        ):
+            raise ValueError("bounded original UTF8 business description required")
     for name, rows in versions.items():
         if type(rows) is not list or not 1 <= len(rows) <= MAX_VERSIONS:
             raise ValueError("bounded version catalog required")
