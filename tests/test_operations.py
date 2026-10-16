@@ -7,8 +7,13 @@ from pathlib import Path
 import pytest
 from agents.tool_context import ToolContext
 
-from infra_ops.agent import (InfrastructureContext, check_rollout_health,
-                             deploy_version, deployment_status, rollback_version)
+from infra_ops.agent import (
+    InfrastructureContext,
+    check_rollout_health,
+    deploy_version,
+    deployment_status,
+    rollback_version,
+)
 from infra_ops.store import DeploymentStore
 
 
@@ -22,7 +27,9 @@ def seeded(tmp_path):
 
 def invoke(tool, ctx, args):
     encoded = json.dumps(args)
-    wrapped = ToolContext(ctx, tool_name=tool.name, tool_call_id="offline-test", tool_arguments=encoded)
+    wrapped = ToolContext(
+        ctx, tool_name=tool.name, tool_call_id="offline-test", tool_arguments=encoded
+    )
     return json.loads(asyncio.run(tool.on_invoke_tool(wrapped, encoded)))
 
 
@@ -43,7 +50,11 @@ def test_failed_rollout_stale_cache_and_safe_rollback(tmp_path):
     restored = store.rollback("api", expected_revision=store.status("api")["revision"])
     assert restored["version"] == "2.0.0" and restored["health"] == "healthy"
     assert store.status("worker")["version"] == "1.4.0"
-    assert [item["event"] for item in store.history("api")] == ["deploy_started", "health_failed", "rolled_back"]
+    assert [item["event"] for item in store.history("api")] == [
+        "deploy_started",
+        "health_failed",
+        "rolled_back",
+    ]
 
 
 def test_successful_rollout_and_invalid_rollback(tmp_path):
@@ -59,10 +70,16 @@ def test_successful_rollout_and_invalid_rollback(tmp_path):
 
 def test_cli_process_operates_synthetic_database(tmp_path):
     db = tmp_path / "deployments.db"
+
     def cli(*args):
-        result = subprocess.run([sys.executable, "-m", "infra_ops.cli", "--db", str(db), *args],
-                                capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            [sys.executable, "-m", "infra_ops.cli", "--db", str(db), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         return result.returncode, json.loads(result.stdout)
+
     assert cli("seed", "--fixture", str(FIXTURE))[1]["seeded"] is True
     assert cli("status", "api")[1]["source"] == "fresh"
     assert cli("deploy", "api", "2.1.0", "--revision", "1")[1]["health"] == "rolling"
@@ -71,14 +88,19 @@ def test_cli_process_operates_synthetic_database(tmp_path):
     assert cli("rollback", "api", "--revision", "3")[1]["version"] == "2.0.0"
 
 
-def test_actual_agents_sdk_tools_call_cli_and_enforce_write_gate(tmp_path):
+def test_actual_agents_sdk_tools_reject_generic_context_without_owned_native_authority(
+    tmp_path,
+):
     store = seeded(tmp_path)
-    readonly = InfrastructureContext(store.path, False)
-    assert invoke(deployment_status, readonly, {"service": "api"})["revision"] == 1
-    assert invoke(deploy_version, readonly, {"service": "api", "version": "2.1.0", "expected_revision": 1})["error"] == "writes_not_authorized"
+    for enabled in (False, True):
+        context = InfrastructureContext(store.path, enabled)
+        with pytest.raises(ValueError, match="owned_runtime_required"):
+            invoke(deployment_status, context, {"service": "api", "cached": False})
+        with pytest.raises(ValueError, match="owned_runtime_required"):
+            invoke(
+                deploy_version,
+                context,
+                {"service": "api", "version": "2.1.0", "expected_revision": 1},
+            )
     assert store.status("api")["revision"] == 1
-    writable = InfrastructureContext(store.path, True)
-    assert invoke(deploy_version, writable, {"service": "api", "version": "2.1.0", "expected_revision": 1})["revision"] == 2
-    assert invoke(check_rollout_health, writable, {"service": "api", "expected_revision": 2})["health"] == "degraded"
-    assert invoke(rollback_version, writable, {"service": "api", "expected_revision": 3})["health"] == "healthy"
-    assert store.status("api")["version"] == "2.0.0"
+    assert store.history("api") == []

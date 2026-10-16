@@ -1,45 +1,48 @@
 # Infrastructure operations agent
 
-An OpenAI Agents SDK agent operates a local synthetic deployment CLI. It reads fresh service status, starts a rollout, checks health, and rolls back a failed version using the latest revision. The fixture deliberately makes API version 2.1.0 fail health. Cached status can be stale, while the worker's 1.5.0 rollout succeeds.
+An OpenAI Agents SDK application operates a fictional local SQLite deployment CLI. It reads current status, starts the exact authorized rollout, checks health and can recover its own failed rollout. API2.1.0 deliberately fails health; worker1.5.0 succeeds. Real cloud accounts and credentials are outside this example.
 
-## Run locally
+## Run
 
-Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
-
-```sh
-uv sync --extra test
-uv run infra-demo seed
-uv run infra-demo status api
-```
-
-Set `OPENAI_API_KEY` and an enabled `INFRA_MODEL`, then inspect without allowing changes:
+Requires Python3.12+ and [uv](https://docs.astral.sh/uv/).
 
 ```sh
-uv run infra-agent --request "Inspect the current API deployment and explain what a 2.1.0 rollout would require"
+uv sync --locked --extra test
+uv run --locked infra-demo seed
+uv run --locked infra-demo status api
 ```
 
-To allow a synthetic rollout and recovery:
+Set an enabled `INFRA_MODEL` and `OPENAI_API_KEY`. These are required explicitly; no model is selected by the example. Inspect without write permission:
 
 ```sh
-uv run infra-agent --request "Deploy API version 2.1.0, check health, and if it fails roll back to the previous healthy version. Verify the final state." --allow-writes
+uv run --locked infra-agent --request 'Inspect the current API deployment and its history'
 ```
 
-`--db` changes the local SQLite path; by default it is `workspace/deployments.db`. The SDK agent's tools invoke the real `infra-demo` subprocess with fixed command shapes. The CLI supports `status`, `deploy`, `health`, `rollback` and `history`. `status --cached` deliberately returns an old snapshot until a fresh status read updates it. Mutating commands require the current revision; stale requests fail. The agent write gate covers rollout, health and rollback tools. The final JSON includes SDK usage when available and the committed service state.
+For a rollout, first obtain the current structured caller intent using the private model-free CLI:
 
-Only the synthetic versions in `fixtures/starter.json` are accepted. The tool does not load cloud credentials or call a cloud API. Reset by removing the local `workspace` directory and running `uv run infra-demo seed` again. This SQLite fixture is a local example, not a production deployment system.
+```sh
+uv run --locked infra-demo inspect --service api --version 2.1.0 --rollback-on-failure
+uv run --locked infra-agent --allow-writes --intent-json '{"service":"api","version":"2.1.0","expected_revision":1,"rollback_on_failure":true}' --request 'Read fresh API status before each change. Deploy2.1.0, check health and recover this failed rollout if needed. Verify final status and history.'
+```
 
-`uv run --extra test pytest` covers a failed rollout, stale cache, rollback, successful worker rollout, CLI subprocess calls and actual Agents SDK function tools. These are offline tool and state proofs, not a live OpenAI model run. Live provider and new Firedrill integration proofs remain pending. This private repository has no license pending portfolio publication decisions.
+Use the actual current revision from inspection. `--db PATH` selects the local SQLite source, `--output DIR` selects private run receipts and `--timeout-seconds` sets a shared1..300second budget (library minimum0.01). `--base-url` accepts an exact HTTPS `/v1` endpoint or an explicitly owned loopback HTTP provider. A real model request can incur provider cost; the repository's tests use only owned local HTTP and synthetic keys.
 
-Explore related applications in the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product and setup references: [Firedrill](https://firedrill.run/) and the [official developer documentation](https://docs.firedrill.run/). Use documentation matching the qualified release; this repository records its current integration limits above.
+## Operation contract
 
-## Development audit active
+The five SDK tools run fixed real Python CLI subprocesses with private bounded stdin and a minimal environment. They expose status/history, rollout, health and recovery, with no shell or arbitrary cloud command. Generic write flags do not grant tool authority: writes require the exact caller service/version/initial revision/recovery permission, a genuine fresh same-operation current read and this operation's own transitions. Cached snapshots and private intent inspection grant no runtime read. CLI/source methods used manually are an explicitly trusted synthetic-human fixture seam.
 
-All4original source/real CLI/actual SDK-tool checks pass. Private probes reproduce missing genuine-read/exact service intent, forged recovery to an unknown version marked healthy, an unexpected SQLite trigger changing another service, coerced/contradictory fixture source and a seed symlink creating a different owned temporary file. Actual canonical Agents SDK/native HTTP/CLI completes its ordinary7request failed-rollout/recovery flow; top-level incomplete response already stops before deployment, while an incomplete function-call item inside a completed response still dispatches and returns success. These are controlled local faults, not paid or production calls. [PLAN.md](PLAN.md) records original private proofs and tasks for strict managed source/read/intent/transitions, actual native/CLI ownership/evidence, twelve coherent cases/private reset and complete distributions. Work continues without waiting for external live provider/Firedrill/cloud/publication inputs.
+The source retains original fixture bytes and complete version/health rules, event history, cached states, observations and atomic decisions. Managed UUID, root/file identity and exact SQLite schema are checked before/after effects. Missing, copied, replaced, foreign, contradictory or modified source is rejected without repair. Existing legacy databases require a fresh exclusive seed. Keep the original database and receipts for inspection; do not delete evidence to reset a workflow.
 
-### First source checkpoint
+Original complete Responses JSON, item statuses, call IDs and strict arguments are checked before SDK tool dispatch. Explicit per-run model/key/origin, no retries,14requests,13CLIcommands,4096output tokens, bounded streams and a shared deadline are enforced. Completion requires a fresh final source observation; deploy-start and final prose alone do not establish a healthy deployment. Failed rollout with verified recovery, successful rollout, unchanged state and unresolved partial state are separate outcomes.
 
-20checks now pass: complete original strict fixture/UTF8/duplicate/reference validation, private exclusive seed creation (including dangling symlink rejection), exact direct argument types/canonical versions and revision exhaustion without committed effects. Original four useful CLI/SDK-tool flows remain. Persisted SQLite/schema/history/authority, genuine current scope/exact intent and original native/owned subprocess lifecycle remain active in PLAN.md; this checkpoint does not complete the project.
+Private `artifacts/<run UUID>/trace.json` receipts retain source images, original request/response bytes, unknown fields, SDK normalization, real child PIDs/stdout/stderr/exits, earlier committed effects and cleanup. Secrets are excluded from request headers and private stdin evidence. Original reported token counters distinguish missing/invalid/zero from SDK estimates; actual cost and cloud delivery remain unknown. Receipts are sensitive local evidence, not an OS sandbox or billing guarantee. SIGINT/SIGTERM/SIGHUP and cancellation close durable write authority before draining owned work. Failed closure or recording prevents success and keeps partial outcomes explicit.
 
-### Managed source / private CLI checkpoint
+## Development status
 
-55checks now cover original UUID/root/file/schema/fixture/history/cache authority, exact caller rollout/recovery intent, private genuine current status capabilities, atomic SQLite service/event/decision writes and no-op, six real concurrent writers, source/record tampering and actual paused CLI fencing after durable scope closure. The default seed fixture is installed package data; original fixture bytes remain preserved. Private model-free `infra-demo --db PATH inspect --service api --version 2.1.0 --rollback-on-failure` prints caller intent and grants no runtime read. Manual CLI/source methods are a declared synthetic-human seam; owned private commands require strict stdin credentials and cannot fall back. The old normal agent launch below/above still needs the owned async/native integration in PLAN.md and is not qualified by these55checks.
+```sh
+uv run --locked --extra test pytest -q
+```
+
+94checks currently cover source/intent/read/transition authority, six real concurrent writers, strict original native output, actual SDK/HTTP/CLI recovery, genuinely paused-child fencing, signal/deadline/parent cancellation and failed source/recording/resource closure. [PLAN.md](PLAN.md) records baseline reproductions, exact evidence and remaining twelve-case/distribution tasks. These are offline execution proofs. Enabled live model/budget/semantic and billing review, qualified new Firedrill persisted scenarios, real cloud/account integration and publication/license remain parked. The project is still under independent development.
+
+Explore the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product references: [Firedrill](https://firedrill.run/) and its [official documentation](https://docs.firedrill.run/); use the documentation matching a qualified release.
