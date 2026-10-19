@@ -69,3 +69,7 @@ uv run --locked python scripts/check_distribution.py
 ```
 
 The gate builds a deterministic complete source archive using portable stored DEFLATE with file/mode/size/hash manifest, repeats its bytes and exercises locked wheel, sdist, complete source and separate production-only installs outside the checkout. Each installation runs all12actual private case CLIs/reset, the installed normal agent through owned local HTTP/real CLI recovery, prepared missing-key failure, all three signals and final native failure after actual committed recovery. The complete source also runs the entire130check suite. Delivered source hashes remain unchanged. `dist/qualification.json` records the observed gate; CI uploads it, the fresh suite log and original archives. `COMPATIBILITY.md` records the exact proof limits.
+
+## Current Firedrill integration
+
+Released CLI/SDK 2.2.2, current command invocation, remote operator MCP and recovery are documented in [firedrill/README.md](firedrill/README.md). Offline checks preserve actual private case/native key behavior and existing independent authority. Authenticated persisted runs and live quality/cost remain separate parked gates.

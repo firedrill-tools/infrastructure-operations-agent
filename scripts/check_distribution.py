@@ -182,6 +182,9 @@ def main():
             ],
             temp,
         )
+        assert (complete/'firedrill/scenario.json').exists() and not (complete/'firedrill/node_modules').exists()
+        run(['npm', 'ci', '--prefix', 'firedrill', '--ignore-scripts', '--no-audit', '--no-fund'], complete)
+        run(['npm', 'test', '--prefix', 'firedrill'], complete)
         python = complete / ".venv/bin/python"
         run([python, "scripts/build_populations.py", "--check"], complete)
         proofs["complete_full"] = exercise(python, complete, temp / "complete-case")

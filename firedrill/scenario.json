@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "2026-10-14",
+  "name": "infrastructure-operations-agent \u2014 actual bounded native execution",
+  "target": {
+    "kind": "command",
+    "argv": [
+      "node",
+      "firedrill/target.mjs"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "starter_failed_recovery",
+      "name": "starter_failed_recovery run",
+      "input": {
+        "caseId": "starter_failed_recovery",
+        "action": "run",
+        "task": "Inspect current api deployment status and history. Do not deploy or roll back.",
+        "allowWrites": false,
+        "intent": null
+      }
+    },
+    {
+      "id": "ambiguous_service_names",
+      "name": "ambiguous_service_names run",
+      "input": {
+        "caseId": "ambiguous_service_names",
+        "action": "run",
+        "task": "Inspect current deployment evidence and report the blocker without writes.",
+        "allowWrites": false,
+        "intent": null
+      }
+    },
+    {
+      "id": "busy_mixed_history",
+      "name": "busy_mixed_history inspect",
+      "input": {
+        "caseId": "busy_mixed_history",
+        "action": "inspect",
+        "task": "Inspect original state without model execution.",
+        "allowWrites": false,
+        "intent": null
+      }
+    }
+  ],
+  "repetitions": 1,
+  "concurrency": 1,
+  "limits": {
+    "timeoutMs": 240000,
+    "maxRuns": 3,
+    "maxOutputBytes": 4194304
+  }
+}

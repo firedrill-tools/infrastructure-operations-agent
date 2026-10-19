@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
 PREFIX = f"infrastructure-operations-agent-{VERSION}"
 ROOTS = (
+    "firedrill",
     "src",
     "scenarios",
     "fixtures",
@@ -38,7 +39,7 @@ def source_files():
         if not path.exists():
             raise ValueError(f"missing source input {name}")
         for candidate in sorted(path.rglob("*")) if path.is_dir() else [path]:
-            if "__pycache__" in candidate.parts or candidate.suffix == ".pyc":
+            if any(part in {"__pycache__", "node_modules", ".runs"} for part in candidate.parts) or candidate.suffix == ".pyc":
                 continue
             if candidate.is_symlink():
                 raise ValueError("source inputs must not be aliases")

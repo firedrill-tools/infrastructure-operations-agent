@@ -25,4 +25,4 @@ packages = ["src/infra_ops"]
 testpaths = ["tests"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "fixtures", "scenarios", "tests", "scripts", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]
+include = ["firedrill", "src", "fixtures", "scenarios", "tests", "scripts", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]
