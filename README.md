@@ -1,6 +1,8 @@
-# Infrastructure operations agent
+# Infrastructure operations agent with OpenAI Agents SDK
 
 An OpenAI Agents SDK application operates a fictional local SQLite deployment CLI. It reads current status, starts the exact authorized rollout, checks health and can recover its own failed rollout. API2.1.0 deliberately fails health; worker1.5.0 succeeds. Real cloud accounts and credentials are outside this example.
+
+Simulate this OpenAI Agents SDK AI agent with [Firedrill](https://firedrill.run/), a simulation platform for AI agents. Start with the [Firedrill setup and simulation guide](firedrill/README.md); your coding agent can operate it while this application's runner stays in your repository or CI.
 
 ## Run
 
@@ -56,7 +58,7 @@ The pinned dataset has three starter, three busy, three ambiguous and three boun
 uv run --locked --extra test pytest -q
 ```
 
-130checks currently cover source/intent/read/transition authority, six real concurrent writers, strict original native output, actual SDK/HTTP/CLI recovery, genuinely paused-child fencing, signal/deadline/parent cancellation and failed source/recording/resource closure. [PLAN.md](PLAN.md) records baseline reproductions, exact evidence and the complete distribution qualification contract. These are offline execution proofs. Enabled live model/budget/semantic and billing review, qualified new Firedrill persisted scenarios, real cloud/account integration and publication/license remain parked. Independent completion additionally requires the exact pushed Linux distribution gate and downloaded artifact equality recorded in the portfolio catalog.
+130checks currently cover source/intent/read/transition authority, six real concurrent writers, strict original native output, actual SDK/HTTP/CLI recovery, genuinely paused-child fencing, signal/deadline/parent cancellation and failed source/recording/resource closure. [PLAN.md](PLAN.md) records baseline reproductions, exact evidence and the complete distribution qualification contract. These are offline execution proofs. Enabled live model/budget/semantic and billing review, authenticated Firedrill persistence verification, real cloud/account integration and publication/license remain parked. Independent completion additionally requires the exact pushed Linux distribution gate and downloaded artifact equality recorded in the portfolio catalog.
 
 Explore the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product references: [Firedrill](https://firedrill.run/) and its [official documentation](https://docs.firedrill.run/); use the documentation matching a qualified release.
 
