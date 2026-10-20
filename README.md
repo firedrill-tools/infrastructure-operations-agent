@@ -62,7 +62,7 @@ uv run --locked --extra test pytest -q
 
 130checks currently cover source/intent/read/transition authority, six real concurrent writers, strict original native output, actual SDK/HTTP/CLI recovery, genuinely paused-child fencing, signal/deadline/parent cancellation and failed source/recording/resource closure. [PLAN.md](PLAN.md) records baseline reproductions, exact evidence and the complete distribution qualification contract. These are offline execution proofs. Enabled live model/budget/semantic and billing review, authenticated Firedrill persistence verification, real cloud/account integration and license remain parked. Independent completion additionally requires the exact pushed Linux distribution gate and downloaded artifact equality recorded in the portfolio catalog.
 
-Explore the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product references: [Firedrill](https://firedrill.run/) and its [official documentation](https://docs.firedrill.run/); use the documentation matching a qualified release.
+Explore the [Firedrill examples](https://docs.firedrill.run/guides/examples). Product references: [Firedrill](https://firedrill.run/) and its [official documentation](https://docs.firedrill.run/); use the documentation matching a qualified release.
 
 ## Reproduce distribution qualification
 
